@@ -1,2 +1,2 @@
 web: python oeanonbot.py
-web: gunicorn oeanonbot:app --bind 0.0.0.0:8080
+web: gunicorn -b 0.0.0.0:8080 oeanonbot:app
