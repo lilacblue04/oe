@@ -8,7 +8,7 @@ def health():
     return "Healthy", 200
 
 def run_flask():
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8000)
 
 # Start Flask in a separate thread
 threading.Thread(target=run_flask).start()
