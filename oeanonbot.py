@@ -1,22 +1,31 @@
-from flask import Flask, request
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
-import logging
+from flask import Flask
+import threading
 
 app = Flask(__name__)
 
-# Telegram bot token and admin ID
-BOT_TOKEN = "7751609623:AAFKb3Wwb_MfcdSW3GcmoMt4kshZXDwpQog"
-ADMIN_ID = 710165881
+@app.route('/health')
+def health():
+    return "Healthy", 200
 
-# Telegram bot application
-application = ApplicationBuilder().token(BOT_TOKEN).build()
+def run_flask():
+    app.run(host='0.0.0.0', port=8000)
+
+# Start Flask in a separate thread
+threading.Thread(target=run_flask).start()
+
+import logging
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
 # Set up logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
 )
+
+# Your bot token and admin ID
+BOT_TOKEN = "7751609623:AAFKb3Wwb_MfcdSW3GcmoMt4kshZXDwpQog"
+ADMIN_ID = 710165881
 
 # Dictionary to map admin message IDs to user IDs and original user message IDs
 message_mapping = {}
@@ -146,24 +155,13 @@ async def handle_admin_message(update: Update, context: ContextTypes.DEFAULT_TYP
         print("Admin message is not a reply.")
         await update.message.reply_text("Reply the message to answer")
 
-# Add command and message handlers
-application.add_handler(CommandHandler("start", start))
-application.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND & ~filters.User(user_id=ADMIN_ID), handle_message))  # Handle all messages
-application.add_handler(MessageHandler(filters.User(user_id=ADMIN_ID), handle_admin_message))  # Handle admin replies
+if __name__ == '__main__':
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-# Webhook route
-@app.route(f"/{BOT_TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(), application.bot)
-    application.update_queue.put(update)
-    return "OK", 200
+    # Add command and message handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND & ~filters.User(user_id=ADMIN_ID), handle_message))  # Handle all messages
+    application.add_handler(MessageHandler(filters.User(user_id=ADMIN_ID), handle_admin_message))  # Handle admin replies
 
-# Health check route
-@app.route("/health", methods=["GET"])
-def health():
-    return "Healthy", 200
-
-if __name__ == "__main__":
-    # Start Flask server
-    app.run(host="0.0.0.0", port=8000)
-    
+    # Start the bot
+    application.run_polling()
