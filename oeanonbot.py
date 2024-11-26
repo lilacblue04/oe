@@ -165,3 +165,5 @@ if __name__ == '__main__':
 
     # Start the bot
     application.run_polling()
+
+app.get('/health-check', (req, res) => res.send('OK'))
