@@ -1,6 +1,6 @@
 from flask import Flask, request
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, WebhookHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 import logging
 
 app = Flask(__name__)
@@ -152,7 +152,7 @@ application.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND & ~filters
 application.add_handler(MessageHandler(filters.User(user_id=ADMIN_ID), handle_admin_message))  # Handle admin replies
 
 # Webhook route
-@app.route(f"/{BOT_TOKEN}", methods=["POST"])
+@app.route(f"/{7751609623:AAFKb3Wwb_MfcdSW3GcmoMt4kshZXDwpQog}", methods=["POST"])
 def webhook():
     update = Update.de_json(request.get_json(), application.bot)
     application.update_queue.put(update)
